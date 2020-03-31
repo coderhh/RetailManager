@@ -3,7 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMDataManager", "RMDataManager\RMDataManager.csproj", "{337898B7-2878-4E86-B3A9-DAF72F436181}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RMDataManager.Tests", "RMDataManager.Tests\RMDataManager.Tests.csproj", "{C23B2735-CA4F-46EF-9089-86DDE9D2FDD8}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{337898B7-2878-4E86-B3A9-DAF72F436181}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337898B7-2878-4E86-B3A9-DAF72F436181}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337898B7-2878-4E86-B3A9-DAF72F436181}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337898B7-2878-4E86-B3A9-DAF72F436181}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C23B2735-CA4F-46EF-9089-86DDE9D2FDD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C23B2735-CA4F-46EF-9089-86DDE9D2FDD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C23B2735-CA4F-46EF-9089-86DDE9D2FDD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C23B2735-CA4F-46EF-9089-86DDE9D2FDD8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection

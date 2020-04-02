@@ -39,6 +39,37 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
+        private bool _isErrorVisible;
+
+        public bool IsErrorVisible
+        {
+            get
+            {
+                var output = !String.IsNullOrEmpty(ErrorMessage);
+                return output;
+            }
+            set
+            {
+                _isErrorVisible = value;
+                NotifyOfPropertyChange(() => IsErrorVisible);
+            }
+        }
+
+        private string errorMessage;
+
+        public string ErrorMessage
+        {
+            get { return errorMessage; }
+            set
+            {
+                errorMessage = value;
+                NotifyOfPropertyChange(() => ErrorMessage);
+                NotifyOfPropertyChange(() => IsErrorVisible);
+            }
+        }
+
+
+
         public bool CanLogIn
         {
             get
@@ -51,13 +82,14 @@ namespace RMDesktopUI.ViewModels
         {
             try
             {
+                ErrorMessage = "";
                 var result = await _apiHelper.Authenticate(UserName, Password);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                ErrorMessage = ex.Message;
             }
-            
+
         }
     }
 }

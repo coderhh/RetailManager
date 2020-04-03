@@ -68,8 +68,6 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-
-
         public bool CanLogIn
         {
             get

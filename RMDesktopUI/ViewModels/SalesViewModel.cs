@@ -2,6 +2,7 @@
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Models;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
@@ -36,27 +37,41 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private BindingList<ProductModel> _cart;
+        private ProductModel _selectedProduct;
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set
+            {
+                _selectedProduct = value;
+                NotifyOfPropertyChange(() => SelectedProduct);
+            }
+        }
 
-        public BindingList<ProductModel> Cart
+
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+
+        public BindingList<CartItemModel> Cart
         {
             get { return _cart; }
             set
             {
                 _cart = value;
                 NotifyOfPropertyChange(() => Cart);
+                NotifyOfPropertyChange(() => SubTotal);
             }
         }
 
-        private string _itemQuantity;
+        private int _itemQuantity;
 
-        public string ItemQuantity
+        public int ItemQuantity
         {
             get { return _itemQuantity; }
             set
             {
                 _itemQuantity = value;
                 NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
 
@@ -64,12 +79,17 @@ namespace RMDesktopUI.ViewModels
 
         public string SubTotal
         {
-            get { return _subTotal; }
-            set
+            get
             {
-                _subTotal = value;
-                NotifyOfPropertyChange(() => SubTotal);
+                decimal subTotal = 0;
+                foreach (var item in Cart)
+                {
+                    subTotal += item.Product.RetailPrice * item.QuantityInCart;
+                }
+
+                return subTotal.ToString("C");
             }
+
         }
 
         private string _tax;
@@ -100,12 +120,27 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                return false;
+                return SelectedProduct?.QuantityInStock > ItemQuantity ? true : false;
             }
         }
         public void AddToCart()
         {
+            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
+            if(existingItem != null)
+            {
+                existingItem.QuantityInCart += ItemQuantity;
+                Cart.Remove(existingItem);
+                Cart.Add(existingItem);
+            }
+            else
+            {
+                var cartItem = new CartItemModel { Product = SelectedProduct, QuantityInCart = ItemQuantity };
+                Cart.Add(cartItem);
+            }
 
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public bool CanRemoveFromCart
@@ -117,7 +152,7 @@ namespace RMDesktopUI.ViewModels
         }
         public void RemoveFromCart()
         {
-
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public bool CanCheckOut

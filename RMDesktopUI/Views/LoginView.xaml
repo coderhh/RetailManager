@@ -36,8 +36,10 @@
 
         <!--Password row-->
         <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,0,5,10">Password:</TextBlock>
-        <TextBox x:Name="Password" Grid.Row="3" Grid.Column="2" MinWidth="350" Margin="0,0,0,10"></TextBox>
-        
+        <!--<TextBox x:Name="Password" Grid.Row="3" Grid.Column="2" MinWidth="350" Margin="0,0,0,10"></TextBox>-->
+
+        <PasswordBox x:Name="Password" Grid.Row="3" Grid.Column="2" MinWidth="350" Margin="0,0,0,10"></PasswordBox>
+
         <!--Login row-->
         <Button Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Padding="20 5" HorizontalAlignment="Center" x:Name="LogIn">
             Login

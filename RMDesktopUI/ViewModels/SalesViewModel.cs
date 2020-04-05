@@ -94,11 +94,13 @@ namespace RMDesktopUI.ViewModels
         {
             decimal subTotal = 0;
 
-            foreach (var item in Cart)
-            {
+            subTotal = Cart.Sum(x => x.Product.RetailPrice * x.QuantityInCart);
 
-                subTotal += item.Product.RetailPrice * item.QuantityInCart;
-            }
+            //foreach (var item in Cart)
+            //{
+
+            //    subTotal += item.Product.RetailPrice * item.QuantityInCart;
+            //}
 
             return subTotal;
         }
@@ -120,13 +122,11 @@ namespace RMDesktopUI.ViewModels
         {
             decimal taxAmount = 0;
             decimal taxRate = _configHelper.GetTaxTate() / 100;
-            foreach (var item in Cart)
-            {
-                if (item.Product.IsTaxable)
-                {
-                    taxAmount += item.Product.RetailPrice * item.QuantityInCart * taxRate;
-                }
-            }
+
+            taxAmount = Cart
+                .Where(x => x.Product.IsTaxable)
+                .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
+           
 
             return taxAmount;
         }

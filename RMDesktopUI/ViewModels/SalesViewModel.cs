@@ -2,6 +2,7 @@
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helper;
 using RMDesktopUI.Library.Models;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,10 +12,12 @@ namespace RMDesktopUI.ViewModels
     public class SalesViewModel : Screen
     {
         private IProductEndpoint _productEndpoint;
+        private ISaleEndpoint _saleEndPoint;
         private IConfigHelper _configHelper;
-        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndPoint)
         {
             _productEndpoint = productEndpoint;
+            _saleEndPoint = saleEndPoint;
             _configHelper = configHelper;
         }
 
@@ -69,7 +72,10 @@ namespace RMDesktopUI.ViewModels
 
         public int ItemQuantity
         {
-            get { return _itemQuantity; }
+            get
+            {
+                return _itemQuantity;
+            }
             set
             {
                 _itemQuantity = value;
@@ -96,12 +102,6 @@ namespace RMDesktopUI.ViewModels
 
             subTotal = Cart.Sum(x => x.Product.RetailPrice * x.QuantityInCart);
 
-            //foreach (var item in Cart)
-            //{
-
-            //    subTotal += item.Product.RetailPrice * item.QuantityInCart;
-            //}
-
             return subTotal;
         }
 
@@ -115,7 +115,6 @@ namespace RMDesktopUI.ViewModels
 
                 return taxAmount.ToString("C");
             }
-
         }
 
         private decimal CalculateTaxAmount()
@@ -126,8 +125,6 @@ namespace RMDesktopUI.ViewModels
             taxAmount = Cart
                 .Where(x => x.Product.IsTaxable)
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
-           
-
             return taxAmount;
         }
 
@@ -170,6 +167,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanRemoveFromCart
@@ -184,17 +182,30 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanCheckOut
         {
             get
             {
-                return false;
+                return Cart.Count > 0;
             }
         }
-        public void CheckOut()
+        public async Task CheckOut()
         {
+            var saleModel = new SaleModel();
+            foreach (var item in Cart)
+            {
+                var saleDetail = new SaleDetailsModel
+                {
+                    Id = item.Product.Id,
+                    QuantityInStock = item.QuantityInCart
+                };
+
+                saleModel.SaleDetails.Add(saleDetail);
+            }
+            await _saleEndPoint.PostSaleAsync(saleModel);
 
         }
     }

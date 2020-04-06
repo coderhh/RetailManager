@@ -2,9 +2,9 @@
 
 namespace RMDataManager.Library
 {
-    public class ConfigHelper
+    public static class ConfigHelper
     {
-        public decimal GetTaxTate()
+        public static decimal GetTaxTate()
         {
             string rateTax = ConfigurationManager.AppSettings["taxRate"];
 

@@ -1,4 +1,4 @@
-﻿namespace RMDesktopUI.Library.Models
+﻿namespace RMDataManager.Library.Models
 {
     public class SaleDetailsModel
     {

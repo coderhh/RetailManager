@@ -199,8 +199,8 @@ namespace RMDesktopUI.ViewModels
             {
                 var saleDetail = new SaleDetailsModel
                 {
-                    Id = item.Product.Id,
-                    QuantityInStock = item.QuantityInCart
+                    ProductId = item.Product.Id,
+                    Quantity = item.QuantityInCart
                 };
 
                 saleModel.SaleDetails.Add(saleDetail);

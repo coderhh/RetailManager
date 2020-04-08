@@ -10,5 +10,14 @@ namespace RMDesktopUI.Library.Models
         public string EmailAddress { get; set; }
         public DateTime CreatedDate { get; set; }
         public string Token { get; set; }
+
+        public void LogOffUser()
+        {
+            Token = "";
+            Id = "";
+            FirstName = "";
+            EmailAddress = "";
+            CreatedDate = DateTime.MinValue;
+        }
     }
 }

@@ -37,7 +37,6 @@ namespace RMDesktopUI.ViewModels
             Products = new BindingList<ProductDisplayModel>(products);
         }
         private BindingList<ProductDisplayModel> _products;
-
         public BindingList<ProductDisplayModel> Products
         {
             get { return _products; }
@@ -47,7 +46,6 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => Products);
             }
         }
-
         private ProductDisplayModel _selectedProduct;
         public ProductDisplayModel SelectedProduct
         {
@@ -58,10 +56,18 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => SelectedProduct);
             }
         }
-
-
+        private CartItemDisplayModel _selectedCartItem;
+        public CartItemDisplayModel SelectedCartItem
+        {
+            get { return _selectedCartItem; }
+            set
+            {
+                _selectedCartItem = value;
+                NotifyOfPropertyChange(() => SelectedCartItem);
+                NotifyOfPropertyChange(() => CanRemoveFromCart);
+            }
+        }
         private BindingList<CartItemDisplayModel> _cart = new BindingList<CartItemDisplayModel>();
-
         public BindingList<CartItemDisplayModel> Cart
         {
             get { return _cart; }
@@ -72,9 +78,7 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => SubTotal);
             }
         }
-
         private int _itemQuantity;
-
         public int ItemQuantity
         {
             get
@@ -86,11 +90,10 @@ namespace RMDesktopUI.ViewModels
                 _itemQuantity = value;
                 NotifyOfPropertyChange(() => ItemQuantity);
                 NotifyOfPropertyChange(() => CanAddToCart);
+                NotifyOfPropertyChange(() => CanRemoveFromCart);
             }
         }
-
         private string _subTotal;
-
         public string SubTotal
         {
             get
@@ -100,7 +103,6 @@ namespace RMDesktopUI.ViewModels
                 return subTotal.ToString("C");
             }
         }
-
         private decimal CalculateSubTotal()
         {
             decimal subTotal = 0;
@@ -109,9 +111,7 @@ namespace RMDesktopUI.ViewModels
 
             return subTotal;
         }
-
         private string _tax;
-
         public string Tax
         {
             get
@@ -121,7 +121,6 @@ namespace RMDesktopUI.ViewModels
                 return taxAmount.ToString("C");
             }
         }
-
         private decimal CalculateTaxAmount()
         {
             decimal taxAmount = 0;
@@ -132,9 +131,7 @@ namespace RMDesktopUI.ViewModels
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
             return taxAmount;
         }
-
         private string _total;
-
         public string Total
         {
             get
@@ -144,7 +141,6 @@ namespace RMDesktopUI.ViewModels
                 return total.ToString("C");
             }
         }
-
         public bool CanAddToCart
         {
             get
@@ -174,22 +170,35 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckOut);
         }
-
         public bool CanRemoveFromCart
         {
             get
             {
-                return false;
+                bool output = false;
+                if (SelectedCartItem?.QuantityInCart >0)
+                {
+                    output = true;
+                }
+                //return SelectedCartItem == null ? false : true;
+                return output;
             }
         }
         public void RemoveFromCart()
         {
+            SelectedCartItem.Product.QuantityInStock += 1;
+            if(SelectedCartItem.QuantityInCart > 1)
+            {
+                SelectedCartItem.QuantityInCart -= 1;
+            }
+            else
+            {
+                Cart.Remove(SelectedCartItem);
+            }
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckOut);
         }
-
         public bool CanCheckOut
         {
             get

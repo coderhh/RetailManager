@@ -6,16 +6,16 @@ using System.Linq;
 namespace RMDataManager.Library.DataAccess
 {
     public class SaleData
-    {   
+    {
         public void SaveSale(SaleModel saleInfo, string cashierId)
         {
             List<SaleDetailsDBModel> details = new List<SaleDetailsDBModel>();
-          
+
             decimal taxRate = ConfigHelper.GetTaxTate() / 100;
 
             foreach (var item in saleInfo.SaleDetails)
             {
-               
+
                 var saleDetails = new SaleDetailsDBModel
                 {
                     ProductId = item.ProductId,
@@ -41,15 +41,28 @@ namespace RMDataManager.Library.DataAccess
 
             saleToDb.Total = saleToDb.SubTotal + saleToDb.Tax;
 
-            SqlDataAccess sql = new SqlDataAccess();
-            sql.SaveData("dbo.spSale_Insert", saleToDb, "RMData");
-
-            saleToDb.Id = sql.LoadData<int,dynamic>("dbo.spSale_Lookup", new { saleToDb.CashierId, saleToDb.SaleDate}, "RMData").FirstOrDefault();
-
-            foreach (var item in details)
+            using (SqlDataAccess sql = new SqlDataAccess())
             {
-                item.SaleId = saleToDb.Id;
-                sql.SaveData("dbo.spSaleDetail_Insert", item, "RMData");
+                try
+                {
+                    sql.StartTransaction("RMData");
+                    sql.SaveDataInTransaction("dbo.spSale_Insert", saleToDb);
+
+                    saleToDb.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", new { saleToDb.CashierId, saleToDb.SaleDate }).FirstOrDefault();
+
+                    foreach (var item in details)
+                    {
+                        item.SaleId = saleToDb.Id;
+                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
+                    }
+
+                    //sql.CommitTransaction();
+                }
+                catch
+                {
+                    sql.RollbackTransaction();
+                    throw;
+                }
             }
 
         }

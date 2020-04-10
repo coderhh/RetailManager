@@ -37,6 +37,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
         private IDbConnection _connection;
         private IDbTransaction _transaction;
+        private bool isClosed;
 
         public void StartTransaction(string connectionStringName)
         {
@@ -44,7 +45,7 @@ namespace RMDataManager.Library.Internal.DataAccess
             _connection = new SqlConnection(connectionString);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
-
+            isClosed = false;
         }
 
         public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
@@ -62,17 +63,32 @@ namespace RMDataManager.Library.Internal.DataAccess
         {
             _transaction?.Commit();
             _connection?.Close();
-
+            isClosed = true;
         }
 
         public void RollbackTransaction()
         {
             _transaction?.Rollback();
+            _connection?.Close();
+            isClosed = true;
         }
 
         public void Dispose()
         {
-            CommitTransaction();
+            if(!isClosed)
+            {
+                try
+                {
+                    CommitTransaction();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+            _transaction = null;
+            _connection = null;
         }
     }
 }

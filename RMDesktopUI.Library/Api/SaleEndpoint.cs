@@ -23,7 +23,7 @@ namespace RMDesktopUI.Library.Api
             {
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("post sales!");
+                    Console.WriteLine("Checkout successed!");
                 }
                 else
                 {

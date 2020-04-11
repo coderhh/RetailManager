@@ -15,7 +15,6 @@ namespace RMDataManager.Library.DataAccess
 
             foreach (var item in saleInfo.SaleDetails)
             {
-
                 var saleDetails = new SaleDetailsDBModel
                 {
                     ProductId = item.ProductId,
@@ -64,7 +63,12 @@ namespace RMDataManager.Library.DataAccess
                     throw;
                 }
             }
-
+        }
+        public List<SaleReportModel> GetSaleReport()
+        {
+            SqlDataAccess sql = new SqlDataAccess();
+            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { },"RMData");
+            return output;
         }
     }
 }

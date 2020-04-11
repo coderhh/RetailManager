@@ -55,7 +55,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
         public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)
         {
-            List<T> rows = _connection.Query<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction:_transaction).ToList();
+            List<T> rows = _connection.Query<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
             return rows;
         }
 
@@ -75,7 +75,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
         public void Dispose()
         {
-            if(!isClosed)
+            if (!isClosed)
             {
                 try
                 {

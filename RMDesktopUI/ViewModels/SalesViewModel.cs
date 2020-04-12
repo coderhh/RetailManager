@@ -4,10 +4,13 @@ using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helper;
 using RMDesktopUI.Library.Models;
 using RMDesktopUI.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -28,7 +31,34 @@ namespace RMDesktopUI.ViewModels
         protected override async void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            try
+            {
+                await LoadProducts();
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowsStartupLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+                settings.Title = "System Error";
+
+                var _status = IoC.Get<StatusInfoViewModel>();
+                var _windows = IoC.Get<IWindowManager>();
+
+                if (ex.Message == "Unauthorized")
+                {
+                    _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form!");
+                    _windows.ShowDialog(_status, null, settings);
+                }
+                else
+                {
+                    _status.UpdateMessage("Fatal Exception", ex.Message);
+                    _windows.ShowDialog(_status, null, settings);
+                }
+
+                TryClose();
+            }
+
         }
         private async Task LoadProducts()
         {
@@ -175,7 +205,7 @@ namespace RMDesktopUI.ViewModels
             get
             {
                 bool output = false;
-                if (SelectedCartItem?.QuantityInCart >0)
+                if (SelectedCartItem?.QuantityInCart > 0)
                 {
                     output = true;
                 }
@@ -186,7 +216,7 @@ namespace RMDesktopUI.ViewModels
         public void RemoveFromCart()
         {
             SelectedCartItem.Product.QuantityInStock += 1;
-            if(SelectedCartItem.QuantityInCart > 1)
+            if (SelectedCartItem.QuantityInCart > 1)
             {
                 SelectedCartItem.QuantityInCart -= 1;
             }

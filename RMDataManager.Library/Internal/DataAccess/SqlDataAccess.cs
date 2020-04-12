@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.SqlClient;
+using System.Data;
 using System.Linq;
 
 namespace RMDataManager.Library.Internal.DataAccess
@@ -21,7 +21,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                List<T> rows = connection.Query<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure).ToList();
+                List<T> rows = connection.Query<T>(storedProcedure, parameters, commandType: System.Data.CommandType.StoredProcedure).ToList();
                 return rows;
             }
         }

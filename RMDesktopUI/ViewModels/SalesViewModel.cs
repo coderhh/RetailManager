@@ -254,7 +254,6 @@ namespace RMDesktopUI.ViewModels
             await ResetViewModel();
 
         }
-
         private async Task ResetViewModel()
         {
             Cart = new BindingList<CartItemDisplayModel>();

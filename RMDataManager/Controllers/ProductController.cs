@@ -5,7 +5,7 @@ using System.Web.Http;
 
 namespace RMDataManager.Controllers
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Admin")]
     public class ProductController : ApiController
     {
         public List<ProductModel> Get()

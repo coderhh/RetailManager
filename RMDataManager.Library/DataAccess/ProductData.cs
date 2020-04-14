@@ -14,9 +14,14 @@ namespace RMDataManager.Library.DataAccess
         {
             this.config = config;
         }
+
+        public ProductData()
+        {
+        }
+
         public List<ProductModel> GetProducts()
         {
-            SqlDataAccess sql = new SqlDataAccess(config);
+            SqlDataAccess sql = GetSqlDataAccessInstance();
 
             var output = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetAll", new { }, "RMData");
 
@@ -25,11 +30,27 @@ namespace RMDataManager.Library.DataAccess
 
         public ProductModel GetProductById(int productId)
         {
-            SqlDataAccess sql = new SqlDataAccess(config);
+            SqlDataAccess sql = GetSqlDataAccessInstance();
 
             var output = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetById", new { Id = productId }, "RMData").FirstOrDefault() ;
 
             return output;
+        }
+
+
+        private SqlDataAccess GetSqlDataAccessInstance()
+        {
+            SqlDataAccess sql;
+            if (config == null)
+            {
+                sql = new SqlDataAccess(config);
+            }
+            else
+            {
+                sql = new SqlDataAccess();
+            }
+
+            return sql;
         }
     }
 }

@@ -2,6 +2,7 @@
 using RMDataManager.Library.Internal.DataAccess;
 using RMDataManager.Library.Models;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 
 namespace RMDataManager.Library.DataAccess
@@ -14,11 +15,16 @@ namespace RMDataManager.Library.DataAccess
         {
             this.config = config;
         }
+
+        public SaleData()
+        {
+        }
+
         public void SaveSale(SaleModel saleInfo, string cashierId)
         {
             List<SaleDetailsDBModel> details = new List<SaleDetailsDBModel>();
 
-            decimal taxRate = ConfigHelper.GetTaxTate() / 100;
+            decimal taxRate = GetTaxRate();
 
             foreach (var item in saleInfo.SaleDetails)
             {
@@ -27,7 +33,16 @@ namespace RMDataManager.Library.DataAccess
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                 };
-                ProductData productData = new ProductData(config);
+                ProductData productData;
+                if (this.config == null)
+                {
+                    productData = new ProductData();
+                }
+                else
+                {
+                    productData = new ProductData(config);
+                }
+                
                 var productInfo = productData.GetProductById(item.ProductId);
                 saleDetails.PurchasePrice = productInfo.RetailPrice * saleDetails.Quantity;
                 if (productInfo.IsTaxable)
@@ -47,7 +62,7 @@ namespace RMDataManager.Library.DataAccess
 
             saleToDb.Total = saleToDb.SubTotal + saleToDb.Tax;
 
-            using (SqlDataAccess sql = new SqlDataAccess(config))
+            using (SqlDataAccess sql = GetSqlDataAccessInstance())
             {
                 try
                 {
@@ -71,11 +86,45 @@ namespace RMDataManager.Library.DataAccess
                 }
             }
         }
+
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = new SqlDataAccess(config);
-            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { },"RMData");
+            SqlDataAccess sql = GetSqlDataAccessInstance();
+            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RMData");
             return output;
+        }
+
+        private decimal GetTaxRate()
+        {
+            if(config == null)
+            {
+                return ConfigHelper.GetTaxTate() / 100;
+            }
+            else
+            {
+                var taxRateStr = config.GetSection("AppSettings").GetSection("taxRate").Value;
+                if (!decimal.TryParse(taxRateStr, out decimal taxRate))
+                {
+                    throw new ConfigurationErrorsException("The tax rate is not set up properly");
+                }
+
+                return taxRate;
+            }
+        }
+
+        private SqlDataAccess GetSqlDataAccessInstance()
+        {
+            SqlDataAccess sql;
+            if (config == null)
+            {
+                sql = new SqlDataAccess(config);
+            }
+            else
+            {
+                sql = new SqlDataAccess();
+            }
+
+            return sql;
         }
     }
 }

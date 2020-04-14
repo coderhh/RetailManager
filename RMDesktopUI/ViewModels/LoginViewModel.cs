@@ -1,8 +1,10 @@
-﻿using Caliburn.Micro;
+﻿using System;
+using System.Threading.Tasks;
+
+using Caliburn.Micro;
+
 using RMDesktopUI.EventModels;
 using RMDesktopUI.Library.Api;
-using System;
-using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -10,8 +12,8 @@ namespace RMDesktopUI.ViewModels
     {
         private string _userName = "test@gmail.com";
         private string _password = "a12358@Hyh";
-        private IAPIHelper _apiHelper;
-        private IEventAggregator _events;
+        private readonly IAPIHelper _apiHelper;
+        private readonly IEventAggregator _events;
 
         public LoginViewModel(IAPIHelper apiHelper, IEventAggregator events)
         {

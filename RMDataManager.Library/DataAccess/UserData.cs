@@ -9,19 +9,38 @@ namespace RMDataManager.Library.DataAccess
     {
         private readonly IConfiguration config;
 
+        public UserData()
+        {
+        }
+
         public UserData(IConfiguration config)
         {
             this.config = config;
         }
         public List<UserModel> GetUserById(string Id)
         {
-            SqlDataAccess sql = new SqlDataAccess(config);
+            SqlDataAccess sql = GetSqlDataAccessInstance();
 
             var p = new { Id };
 
             var output = sql.LoadData<UserModel, dynamic>("dbo.spUserLookUp", p, "RMData");
 
             return output;
+        }
+
+        private SqlDataAccess GetSqlDataAccessInstance()
+        {
+            SqlDataAccess sql;
+            if (config == null)
+            {
+                sql = new SqlDataAccess(config);
+            }
+            else
+            {
+                sql = new SqlDataAccess();
+            }
+
+            return sql;
         }
     }
 }

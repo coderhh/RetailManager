@@ -123,7 +123,7 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => CanRemoveFromCart);
             }
         }
-        private string _subTotal;
+        //private string _subTotal;
         public string SubTotal
         {
             get
@@ -141,7 +141,7 @@ namespace RMDesktopUI.ViewModels
 
             return subTotal;
         }
-        private string _tax;
+        //private string _tax;
         public string Tax
         {
             get
@@ -161,7 +161,7 @@ namespace RMDesktopUI.ViewModels
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
             return taxAmount;
         }
-        private string _total;
+        //private string _total;
         public string Total
         {
             get

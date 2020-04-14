@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -23,10 +24,20 @@ namespace RMDataManager.Library.Internal.DataAccess
             _config = config;
         }
 
-        public string GetConnectionString(string name)
+        public SqlDataAccess()
         {
-            return _config.GetConnectionString(name);
-            
+        }
+
+        private string GetConnectionString(string name)
+        {
+            if(_config == null)
+            {
+                return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            }
+            else
+            {
+                return _config.GetConnectionString(name);
+            }
             //return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 

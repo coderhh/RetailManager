@@ -1,18 +1,33 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+
+using Dapper;
+
+using Microsoft.Extensions.Configuration;
 
 namespace RMDataManager.Library.Internal.DataAccess
 {
     internal class SqlDataAccess : IDisposable
     {
+        private IDbConnection _connection;
+        private bool isClosed;
+        private readonly IConfiguration _config;
+
+        public IDbTransaction Transaction { get; set; }
+
+        public SqlDataAccess(IConfiguration config)
+        {
+            _config = config;
+        }
+
         public string GetConnectionString(string name)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            return _config.GetConnectionString(name);
+            
+            //return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 
         public List<T> LoadData<T, U>(string storedProcedure, U parameters, string connectionStringName)
@@ -35,40 +50,36 @@ namespace RMDataManager.Library.Internal.DataAccess
             }
         }
 
-        private IDbConnection _connection;
-        private IDbTransaction _transaction;
-        private bool isClosed;
-
         public void StartTransaction(string connectionStringName)
         {
             string connectionString = GetConnectionString(connectionStringName);
             _connection = new SqlConnection(connectionString);
             _connection.Open();
-            _transaction = _connection.BeginTransaction();
+            Transaction = _connection.BeginTransaction();
             isClosed = false;
         }
 
         public void SaveDataInTransaction<T>(string storedProcedure, T parameters)
         {
-            _connection.Execute(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction);
+            _connection.Execute(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: Transaction);
         }
 
         public List<T> LoadDataInTransaction<T, U>(string storedProcedure, U parameters)
         {
-            List<T> rows = _connection.Query<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: _transaction).ToList();
+            List<T> rows = _connection.Query<T>(storedProcedure, parameters, commandType: CommandType.StoredProcedure, transaction: Transaction).ToList();
             return rows;
         }
 
         public void CommitTransaction()
         {
-            _transaction?.Commit();
+            Transaction?.Commit();
             _connection?.Close();
             isClosed = true;
         }
 
         public void RollbackTransaction()
         {
-            _transaction?.Rollback();
+            Transaction?.Rollback();
             _connection?.Close();
             isClosed = true;
         }
@@ -87,7 +98,7 @@ namespace RMDataManager.Library.Internal.DataAccess
                 }
             }
 
-            _transaction = null;
+            Transaction = null;
             _connection = null;
         }
     }

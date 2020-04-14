@@ -1,4 +1,5 @@
-﻿using RMDataManager.Library.Internal.DataAccess;
+﻿using Microsoft.Extensions.Configuration;
+using RMDataManager.Library.Internal.DataAccess;
 using RMDataManager.Library.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,12 @@ namespace RMDataManager.Library.DataAccess
 {
     public class SaleData
     {
+        private readonly IConfiguration config;
+
+        public SaleData(IConfiguration config)
+        {
+            this.config = config;
+        }
         public void SaveSale(SaleModel saleInfo, string cashierId)
         {
             List<SaleDetailsDBModel> details = new List<SaleDetailsDBModel>();
@@ -20,7 +27,7 @@ namespace RMDataManager.Library.DataAccess
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                 };
-                ProductData productData = new ProductData();
+                ProductData productData = new ProductData(config);
                 var productInfo = productData.GetProductById(item.ProductId);
                 saleDetails.PurchasePrice = productInfo.RetailPrice * saleDetails.Quantity;
                 if (productInfo.IsTaxable)
@@ -40,7 +47,7 @@ namespace RMDataManager.Library.DataAccess
 
             saleToDb.Total = saleToDb.SubTotal + saleToDb.Tax;
 
-            using (SqlDataAccess sql = new SqlDataAccess())
+            using (SqlDataAccess sql = new SqlDataAccess(config))
             {
                 try
                 {
@@ -66,7 +73,7 @@ namespace RMDataManager.Library.DataAccess
         }
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = new SqlDataAccess();
+            SqlDataAccess sql = new SqlDataAccess(config);
             var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { },"RMData");
             return output;
         }

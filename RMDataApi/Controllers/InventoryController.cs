@@ -14,12 +14,12 @@ namespace RMDataApi.Controllers
     {
         private readonly IConfiguration config;
 
-        public InventoryController(IConfiguration config
-            )
+        public InventoryController(IConfiguration config)
         {
             this.config = config;
         }
         [Authorize(Roles = "Manager, Admin")]
+        [HttpGet]
         public List<InventoryModel> Get()
         {
             InventoryData data = new InventoryData(config);
@@ -27,6 +27,7 @@ namespace RMDataApi.Controllers
         }
 
         [Authorize(Roles = "Admin")]
+        [HttpPost]
         public void Post(InventoryModel item)
         {
             InventoryData data = new InventoryData(config);

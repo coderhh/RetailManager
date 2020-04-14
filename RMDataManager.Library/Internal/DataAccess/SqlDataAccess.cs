@@ -26,6 +26,7 @@ namespace RMDataManager.Library.Internal.DataAccess
         public string GetConnectionString(string name)
         {
             return _config.GetConnectionString(name);
+            
             //return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 

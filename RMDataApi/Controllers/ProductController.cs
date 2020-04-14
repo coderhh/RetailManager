@@ -18,6 +18,7 @@ namespace RMDataApi.Controllers
         {
             this.config = config;
         }
+        [HttpGet]
         public List<ProductModel> Get()
         {
             ProductData data = new ProductData(config);

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using RMDataManager.Library.DataAccess;
 using RMDataManager.Library.Models;
 using System.Collections.Generic;
@@ -12,10 +13,16 @@ namespace RMDataApi.Controllers
     [Authorize]
     public class SaleController : ControllerBase
     {
+        private readonly IConfiguration config;
+
+        public SaleController(IConfiguration config)
+        {
+            this.config = config;
+        }
         [Authorize(Roles = "Cashier")]
         public void Post(SaleModel sale)
         {
-            SaleData data = new SaleData();
+            SaleData data = new SaleData(config);
             var cashierId = User.FindFirstValue(ClaimTypes.NameIdentifier);//RequestContext.Principal.Identity.GetUserId();
             data.SaveSale(sale, cashierId);
         }
@@ -23,7 +30,7 @@ namespace RMDataApi.Controllers
         [Route("GetSalesReport")]
         public List<SaleReportModel> GetSalesReport()
         {
-            SaleData data = new SaleData();
+            SaleData data = new SaleData(config);
             var result = data.GetSaleReport();
             return result;
         }

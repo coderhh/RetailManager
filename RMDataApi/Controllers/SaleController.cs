@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RMDataManager.Library.DataAccess;
 using RMDataManager.Library.Models;
 using System.Collections.Generic;
@@ -13,16 +14,19 @@ namespace RMDataApi.Controllers
     public class SaleController : ControllerBase
     {
         private readonly ISaleData _saleData;
+        private readonly ILogger<SaleController> _logger;
 
-        public SaleController(ISaleData saleData)
+        public SaleController(ISaleData saleData, ILogger<SaleController> logger)
         {
             _saleData = saleData;
+            _logger = logger;
         }
         [Authorize(Roles = "Cashier")]
         [HttpPost]
         public void Post(SaleModel sale)
         {
-            var cashierId = User.FindFirstValue(ClaimTypes.NameIdentifier);//RequestContext.Principal.Identity.GetUserId();
+            var cashierId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("Cashier {Cashier} checked out", cashierId);
             _saleData.SaveSale(sale, cashierId);
         }
         [Authorize(Roles = "Admin, Manager")]

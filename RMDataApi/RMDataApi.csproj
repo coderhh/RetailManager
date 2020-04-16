@@ -28,4 +28,13 @@
     <ProjectReference Include="..\RMDataManager.Library\RMDataManager.Library.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Update="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+  </ItemGroup>
+
 </Project>

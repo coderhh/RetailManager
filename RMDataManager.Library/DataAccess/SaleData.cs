@@ -11,11 +11,13 @@ namespace RMDataManager.Library.DataAccess
     {
         private readonly IProductData _prodcutData;
         private readonly ISqlDataAccess _sql;
+        private readonly IConfiguration _config;
 
-        public SaleData(IProductData prodcutData, ISqlDataAccess sql)
+        public SaleData(IProductData prodcutData, ISqlDataAccess sql, IConfiguration config)
         {
-            this._prodcutData = prodcutData;
+            _prodcutData = prodcutData;
             _sql = sql;
+            _config = config;
         }
 
         public SaleData()
@@ -26,7 +28,7 @@ namespace RMDataManager.Library.DataAccess
         {
             List<SaleDetailsDBModel> details = new List<SaleDetailsDBModel>();
 
-            decimal taxRate = ConfigHelper.GetTaxTate() / 100;
+            decimal taxRate = GetTaxRate();
 
             foreach (var item in saleInfo.SaleDetails)
             {
@@ -82,6 +84,17 @@ namespace RMDataManager.Library.DataAccess
         {
             var output = _sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RMData");
             return output;
+        }
+
+        private decimal GetTaxRate()
+        {
+            var taxRateStr = _config.GetSection("AppSettings").GetSection("taxRate").Value;
+            if (!decimal.TryParse(taxRateStr, out decimal taxRate))
+            {
+                throw new ConfigurationErrorsException("The tax rate is not set up properly");
+            }
+
+            return taxRate / 100;
         }
 
     }

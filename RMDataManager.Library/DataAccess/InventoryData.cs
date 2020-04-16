@@ -41,11 +41,11 @@ namespace RMDataManager.Library.DataAccess
             SqlDataAccess sql;
             if (config == null)
             {
-                sql = new SqlDataAccess(config);
+                sql = new SqlDataAccess();
             }
             else
             {
-                sql = new SqlDataAccess();
+                sql = new SqlDataAccess(config);
             }
 
             return sql;

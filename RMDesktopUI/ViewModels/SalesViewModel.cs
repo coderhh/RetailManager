@@ -84,6 +84,7 @@ namespace RMDesktopUI.ViewModels
             {
                 _selectedProduct = value;
                 NotifyOfPropertyChange(() => SelectedProduct);
+                NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
         private CartItemDisplayModel _selectedCartItem;
@@ -108,8 +109,8 @@ namespace RMDesktopUI.ViewModels
                 NotifyOfPropertyChange(() => SubTotal);
             }
         }
-        private int _itemQuantity;
-        public int ItemQuantity
+        private string _itemQuantity = 1.ToString();
+        public string ItemQuantity
         {
             get
             {
@@ -118,12 +119,20 @@ namespace RMDesktopUI.ViewModels
             set
             {
                 _itemQuantity = value;
+                if (ItemQuantity == null)
+                {
+                    quantity = 0;
+                }
+                else
+                {
+                    Int32.TryParse(ItemQuantity, out quantity);
+                }
                 NotifyOfPropertyChange(() => ItemQuantity);
                 NotifyOfPropertyChange(() => CanAddToCart);
                 NotifyOfPropertyChange(() => CanRemoveFromCart);
             }
         }
-        //private string _subTotal;
+        private int quantity  = 1;
         public string SubTotal
         {
             get
@@ -141,7 +150,6 @@ namespace RMDesktopUI.ViewModels
 
             return subTotal;
         }
-        //private string _tax;
         public string Tax
         {
             get
@@ -161,7 +169,6 @@ namespace RMDesktopUI.ViewModels
                 .Sum(x => x.Product.RetailPrice * x.QuantityInCart * taxRate);
             return taxAmount;
         }
-        //private string _total;
         public string Total
         {
             get
@@ -175,7 +182,7 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                return SelectedProduct?.QuantityInStock >= ItemQuantity ? true : false;
+                return SelectedProduct?.QuantityInStock >= quantity;
             }
         }
         public void AddToCart()
@@ -183,18 +190,18 @@ namespace RMDesktopUI.ViewModels
             CartItemDisplayModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
             if (existingItem != null)
             {
-                existingItem.QuantityInCart += ItemQuantity;
+                existingItem.QuantityInCart += quantity;
                 Cart.Remove(existingItem);
                 Cart.Add(existingItem);
             }
             else
             {
-                var cartItem = new CartItemDisplayModel { Product = SelectedProduct, QuantityInCart = ItemQuantity };
+                var cartItem = new CartItemDisplayModel { Product = SelectedProduct, QuantityInCart = quantity };
                 Cart.Add(cartItem);
             }
 
-            SelectedProduct.QuantityInStock -= ItemQuantity;
-            ItemQuantity = 1;
+            SelectedProduct.QuantityInStock -= quantity;
+            ItemQuantity = 1.ToString();
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);

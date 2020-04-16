@@ -108,7 +108,7 @@ namespace RMDataManager.Library.DataAccess
                     throw new ConfigurationErrorsException("The tax rate is not set up properly");
                 }
 
-                return taxRate;
+                return taxRate / 100;
             }
         }
 
@@ -117,11 +117,11 @@ namespace RMDataManager.Library.DataAccess
             SqlDataAccess sql;
             if (config == null)
             {
-                sql = new SqlDataAccess(config);
+                sql = new SqlDataAccess();
             }
             else
             {
-                sql = new SqlDataAccess();
+                sql = new SqlDataAccess(config);
             }
 
             return sql;

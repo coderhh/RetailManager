@@ -7,13 +7,17 @@ using System.Linq;
 
 namespace RMDataManager.Library.DataAccess
 {
-    public class SaleData
+    public class SaleData : ISaleData
     {
-        private readonly IConfiguration config;
+        private readonly IProductData _prodcutData;
+        private readonly ISqlDataAccess _sql;
+        private readonly IConfiguration _config;
 
-        public SaleData(IConfiguration config)
+        public SaleData(IProductData prodcutData, ISqlDataAccess sql, IConfiguration config)
         {
-            this.config = config;
+            _prodcutData = prodcutData;
+            _sql = sql;
+            _config = config;
         }
 
         public SaleData()
@@ -33,17 +37,8 @@ namespace RMDataManager.Library.DataAccess
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
                 };
-                ProductData productData;
-                if (this.config == null)
-                {
-                    productData = new ProductData();
-                }
-                else
-                {
-                    productData = new ProductData(config);
-                }
-                
-                var productInfo = productData.GetProductById(item.ProductId);
+
+                var productInfo = _prodcutData.GetProductById(item.ProductId);
                 saleDetails.PurchasePrice = productInfo.RetailPrice * saleDetails.Quantity;
                 if (productInfo.IsTaxable)
                 {
@@ -62,69 +57,46 @@ namespace RMDataManager.Library.DataAccess
 
             saleToDb.Total = saleToDb.SubTotal + saleToDb.Tax;
 
-            using (SqlDataAccess sql = GetSqlDataAccessInstance())
+            try
             {
-                try
+                _sql.StartTransaction("RMData");
+                _sql.SaveDataInTransaction("dbo.spSale_Insert", saleToDb);
+
+                saleToDb.Id = _sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", new { saleToDb.CashierId, saleToDb.SaleDate }).FirstOrDefault();
+
+                foreach (var item in details)
                 {
-                    sql.StartTransaction("RMData");
-                    sql.SaveDataInTransaction("dbo.spSale_Insert", saleToDb);
-
-                    saleToDb.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", new { saleToDb.CashierId, saleToDb.SaleDate }).FirstOrDefault();
-
-                    foreach (var item in details)
-                    {
-                        item.SaleId = saleToDb.Id;
-                        sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
-                    }
-
-                    sql.CommitTransaction();
+                    item.SaleId = saleToDb.Id;
+                    _sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", item);
                 }
-                catch
-                {
-                    sql.RollbackTransaction();
-                    throw;
-                }
+
+                _sql.CommitTransaction();
             }
+            catch
+            {
+                _sql.RollbackTransaction();
+                throw;
+            }
+
         }
 
         public List<SaleReportModel> GetSaleReport()
         {
-            SqlDataAccess sql = GetSqlDataAccessInstance();
-            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RMData");
+            var output = _sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RMData");
             return output;
         }
 
         private decimal GetTaxRate()
         {
-            if(config == null)
+            var taxRateStr = _config.GetSection("AppSettings").GetSection("taxRate").Value;
+            if (!decimal.TryParse(taxRateStr, out decimal taxRate))
             {
-                return ConfigHelper.GetTaxTate() / 100;
+                throw new ConfigurationErrorsException("The tax rate is not set up properly");
             }
-            else
-            {
-                var taxRateStr = config.GetSection("AppSettings").GetSection("taxRate").Value;
-                if (!decimal.TryParse(taxRateStr, out decimal taxRate))
-                {
-                    throw new ConfigurationErrorsException("The tax rate is not set up properly");
-                }
 
-                return taxRate / 100;
-            }
+            return taxRate / 100;
         }
 
-        private SqlDataAccess GetSqlDataAccessInstance()
-        {
-            SqlDataAccess sql;
-            if (config == null)
-            {
-                sql = new SqlDataAccess();
-            }
-            else
-            {
-                sql = new SqlDataAccess(config);
-            }
-
-            return sql;
-        }
     }
+    
 }

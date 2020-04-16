@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using RMDataApi.Data;
-using RMDataApi.Models;
-using RMDataManager.Library.DataAccess;
-using RMDataManager.Library.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using RMDataApi.Data;
+using RMDataApi.Models;
+
+using RMDataManager.Library.DataAccess;
+using RMDataManager.Library.Models;
 
 namespace RMDataManager.Controllers
 {
@@ -20,22 +22,22 @@ namespace RMDataManager.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _config;
+        private readonly IUserData _userData;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IConfiguration config)
+        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IUserData userData, ILogger<UserController> logger)
         {
             _context = context;
             _userManager = userManager;
-            _config = config;
+            _userData = userData;
+            _logger = logger;
         }
         [HttpGet]
-        // GET api/user/getbyid
         public UserModel GetById()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            UserData data = new UserData(_config);
 
-            return data.GetUserById(userId).First();
+            return _userData.GetUserById(userId).First();
         }
         [Authorize(Roles = "Admin")]
         [HttpGet]
@@ -76,9 +78,13 @@ namespace RMDataManager.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("Admin/AddRole")]
-        public async Task AllARole(UserRolePairModel pair)
+        public async Task AddARole(UserRolePairModel pair)
         {
+            string loggeInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(pair.UserId);
+
+            _logger.LogInformation("Admin {Admin} added user {User} to role {Role}", loggeInUserId, user.Id, pair.RoleName);
+
             await _userManager.AddToRoleAsync(user, pair.RoleName);
         }
 
@@ -87,7 +93,10 @@ namespace RMDataManager.Controllers
         [Route("Admin/RemoveRole")]
         public async Task RemoveARole(UserRolePairModel pair)
         {
+            string loggeInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(pair.UserId);
+            _logger.LogInformation("Admin {Admin} removed user {User} from role {Role}", loggeInUserId, user.Id, pair.RoleName);
+
             await _userManager.RemoveFromRoleAsync(user, pair.RoleName);
         }
     }

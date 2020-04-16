@@ -6,13 +6,12 @@ using System.Linq;
 
 namespace RMDataManager.Library.DataAccess
 {
-    public class ProductData
+    public class ProductData : IProductData
     {
-        private readonly IConfiguration config;
-
-        public ProductData(IConfiguration config)
+        private readonly ISqlDataAccess _sql;
+        public ProductData(ISqlDataAccess sql)
         {
-            this.config = config;
+            _sql = sql;
         }
 
         public ProductData()
@@ -21,36 +20,17 @@ namespace RMDataManager.Library.DataAccess
 
         public List<ProductModel> GetProducts()
         {
-            SqlDataAccess sql = GetSqlDataAccessInstance();
-
-            var output = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetAll", new { }, "RMData");
+            var output = _sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetAll", new { }, "RMData");
 
             return output;
         }
 
         public ProductModel GetProductById(int productId)
         {
-            SqlDataAccess sql = GetSqlDataAccessInstance();
-
-            var output = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetById", new { Id = productId }, "RMData").FirstOrDefault() ;
+            var output = _sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetById", new { Id = productId }, "RMData").FirstOrDefault();
 
             return output;
         }
-
-
-        private SqlDataAccess GetSqlDataAccessInstance()
-        {
-            SqlDataAccess sql;
-            if (config == null)
-            {
-                sql = new SqlDataAccess();
-            }
-            else
-            {
-                sql = new SqlDataAccess(config);
-            }
-
-            return sql;
-        }
+       
     }
 }

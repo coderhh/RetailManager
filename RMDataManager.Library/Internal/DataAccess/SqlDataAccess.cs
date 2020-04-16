@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace RMDataManager.Library.Internal.DataAccess
 {
-    internal class SqlDataAccess : IDisposable
+    public class SqlDataAccess : IDisposable, ISqlDataAccess
     {
         private IDbConnection _connection;
         private bool isClosed;
@@ -30,7 +30,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 
         private string GetConnectionString(string name)
         {
-            if(_config == null)
+            if (_config == null)
             {
                 return ConfigurationManager.ConnectionStrings[name].ConnectionString;
             }
@@ -105,7 +105,7 @@ namespace RMDataManager.Library.Internal.DataAccess
                 }
                 catch (Exception)
                 {
-                    throw;
+                    //TODO
                 }
             }
 

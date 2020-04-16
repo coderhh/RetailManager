@@ -1,46 +1,27 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Generic;
+
 using RMDataManager.Library.Internal.DataAccess;
 using RMDataManager.Library.Models;
-using System.Collections.Generic;
 
 namespace RMDataManager.Library.DataAccess
 {
-    public class UserData
+    public class UserData : IUserData
     {
-        private readonly IConfiguration config;
+        private readonly ISqlDataAccess _sql;
 
         public UserData()
         {
         }
 
-        public UserData(IConfiguration config)
+        public UserData(ISqlDataAccess sql)
         {
-            this.config = config;
+            _sql = sql;
         }
         public List<UserModel> GetUserById(string Id)
         {
-            SqlDataAccess sql = GetSqlDataAccessInstance();
-
-            var p = new { Id };
-
-            var output = sql.LoadData<UserModel, dynamic>("dbo.spUserLookUp", p, "RMData");
+            var output = _sql.LoadData<UserModel, dynamic>("dbo.spUserLookUp", new { Id }, "RMData");
 
             return output;
-        }
-
-        private SqlDataAccess GetSqlDataAccessInstance()
-        {
-            SqlDataAccess sql;
-            if (config == null)
-            {
-                sql = new SqlDataAccess();
-            }
-            else
-            {
-                sql = new SqlDataAccess(config);
-            }
-
-            return sql;
         }
     }
 }

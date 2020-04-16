@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Logging;
 using RMDataApi.Data;
 using RMDataApi.Models;
 
@@ -23,12 +23,14 @@ namespace RMDataManager.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IUserData _userData;
+        private readonly ILogger<UserController> _logger;
 
-        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IUserData userData)
+        public UserController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IUserData userData, ILogger<UserController> logger)
         {
             _context = context;
             _userManager = userManager;
             _userData = userData;
+            _logger = logger;
         }
         [HttpGet]
         public UserModel GetById()
@@ -76,9 +78,13 @@ namespace RMDataManager.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [Route("Admin/AddRole")]
-        public async Task AllARole(UserRolePairModel pair)
+        public async Task AddARole(UserRolePairModel pair)
         {
+            string loggeInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(pair.UserId);
+
+            _logger.LogInformation("Admin {Admin} added user {User} to role {Role}", loggeInUserId, user.Id, pair.RoleName);
+
             await _userManager.AddToRoleAsync(user, pair.RoleName);
         }
 
@@ -87,7 +93,10 @@ namespace RMDataManager.Controllers
         [Route("Admin/RemoveRole")]
         public async Task RemoveARole(UserRolePairModel pair)
         {
+            string loggeInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userManager.FindByIdAsync(pair.UserId);
+            _logger.LogInformation("Admin {Admin} removed user {User} from role {Role}", loggeInUserId, user.Id, pair.RoleName);
+
             await _userManager.RemoveFromRoleAsync(user, pair.RoleName);
         }
     }

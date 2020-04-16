@@ -5,7 +5,7 @@ namespace RMDataManager.Library.Internal.DataAccess
 {
     public interface ISqlDataAccess
     {
-        IDbTransaction Transaction { get; set; }
+        IDbTransaction _transaction { get; set; }
 
         void CommitTransaction();
         void Dispose();

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using RMDataApi.Data;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace RMDataApi.Controllers
 {
@@ -16,11 +17,13 @@ namespace RMDataApi.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IConfiguration config;
 
-        public TokenController(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public TokenController(ApplicationDbContext context, UserManager<IdentityUser> userManager, IConfiguration config)
         {
             this.context = context;
             this.userManager = userManager;
+            this.config = config;
         }
         
         [Route("/token")]
@@ -63,10 +66,12 @@ namespace RMDataApi.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
+            string key = this.config.GetValue<string>("Secrets:SecurityKey");
+
             var token = new JwtSecurityToken(
                 new JwtHeader(
                     new SigningCredentials(
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MySecretKeyIsSecretSoDoNotTell")),
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                         SecurityAlgorithms.HmacSha256)),
                 new JwtPayload(claims));
 

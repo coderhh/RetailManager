@@ -32,6 +32,8 @@ namespace RMDataManager.Controllers
             _userData = userData;
             _logger = logger;
         }
+
+
         [HttpGet]
         public UserModel GetById()
         {

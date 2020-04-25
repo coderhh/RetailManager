@@ -39,7 +39,12 @@ namespace RMDataManager.Controllers
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return _userData.GetUserById(userId).First();
+            var users = _userData.GetUserById(userId);
+            if(users.Count < 1)
+            {
+                _logger.LogInformation("USER: {UserID} NOT FOUND", userId);
+            }
+            return users.FirstOrDefault();
         }
         [Authorize(Roles = "Admin")]
         [HttpGet]

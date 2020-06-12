@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WPF.Pure.Controls"
+             xmlns:nav="clr-namespace:WPF.Pure.States"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1080">
     <Grid>
@@ -14,8 +15,8 @@
 
         <TextBlock Grid.Row="0" Text="SHOP" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource BrushPrimary1}"></TextBlock>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Background="{StaticResource BrushPrimary2}">
-            <RadioButton Content="HOME"></RadioButton>
-            <RadioButton Content="PRODUCTS"></RadioButton>
+            <RadioButton Content="HOME" Command="{Binding UpdataCurrentViewModelCommand}" CommandParameter="{x:Static nav:ViewType.Home}"></RadioButton>
+            <RadioButton Content="PRODUCTS" Command="{Binding UpdataCurrentViewModelCommand}" CommandParameter="{x:Static nav:ViewType.Products}"></RadioButton>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -12,8 +12,8 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="SHOP" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
+        <TextBlock Grid.Row="0" Text="SHOP" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource BrushPrimary1}"></TextBlock>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="{StaticResource BrushPrimary2}">
             <RadioButton Content="HOME"></RadioButton>
             <RadioButton Content="PRODUCTS"></RadioButton>
         </StackPanel>

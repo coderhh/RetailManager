@@ -1,0 +1,2 @@
+﻿clr=namespace:WPF.Pure.Controls
+clr-namespace:WPF.Pure.Controls

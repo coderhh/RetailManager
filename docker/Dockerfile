@@ -1,17 +1,7 @@
-FROM mcr.microsoft.com/mssql/server:2017-latest AS build
-ENV ACCEPT_EULA=Y
-ENV SA_PASSWORD=Pwd12345!
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
-WORKDIR  /tmp
-COPY AdventureWorksLT2017.bak .
-COPY restore-backup.sql .
-
-Run /opt/mssql/bin/sqlservr --accept-eula & sleep 10 \
-    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Pwd12345!" -i /tmp/restore-backup.sql \
-    && pkill sqlservr
-
-FROM mcr.microsoft.com/mssql/server:2017-latest AS release
-
-ENV ACCEPT_EULA=Y
-
-COPY --from=build /var/opt/mssql/data /var/opt/mssql/data
+RUN powershell.exe -Command \
+  $ErrorActionPreference = 'Stop'; \
+  Invoke-WebRequest https://www.python.org/ftp/python/3.5.1/python-3.5.1.exe -OutFile c:\python-3.5.1.exe ; \
+  Start-Process c:\python-3.5.1.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait ; \
+  Remove-Item c:\python-3.5.1.exe -Force
